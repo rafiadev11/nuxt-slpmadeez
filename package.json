@@ -1,5 +1,5 @@
 {
-  "name": "SlpMadeEZ",
+  "name": "slp-made-ez",
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -9,8 +9,16 @@
     "generate": "nuxt generate"
   },
   "dependencies": {
+    "@nuxtjs/auth-next": "*",
+    "@nuxtjs/axios": "^5.13.6",
+    "bootstrap": "^5.1.1",
     "core-js": "^3.15.1",
     "nuxt": "^2.15.7"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@nuxt/image": "^0.6.0",
+    "fibers": "^5.0.0",
+    "sass": "^1.39.2",
+    "sass-loader": "^10.2.0"
+  }
 }
