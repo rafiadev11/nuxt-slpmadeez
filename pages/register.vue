@@ -62,7 +62,6 @@ export default {
     methods: {
         async register() {
             try {
-                // let errors = {};
                 await this.$axios.$get('/sanctum/csrf-cookie');
                 await this.$axios.$post('/register', this.form)
                     .then((response) => {
@@ -73,7 +72,6 @@ export default {
                             this.errors = error.response.data.errors
                         }
                     });
-                // this.errors = errors;
                 if(this.errors === null){
                     await this.$auth.loginWith('laravelSanctum', {data: this.form})
                 }
