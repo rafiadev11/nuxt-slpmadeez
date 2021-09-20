@@ -15,19 +15,21 @@ export default {
             { name: "format-detection", content: "telephone=no" }
         ],
         link: [{ rel: "icon", type: "image/x-icon", href: "/favicon.ico" }],
-        script: [
-            {
-                src:
-                    "https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
-            }
-        ]
+        script: []
     },
 
     // Global CSS: https://go.nuxtjs.dev/config-css
-    css: ["@/assets/scss/main.scss"],
+    css: [{ hid: "coreCSS", src: "@/assets/scss/main.scss", lang: "scss" }],
 
     // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
-    plugins: [],
+    plugins: [
+        { src: "~plugins/v-calendar.js", ssr: false },
+        "~plugins/service.js",
+        {
+            src: "~/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js",
+            mode: "client"
+        }
+    ],
 
     // Auto import components: https://go.nuxtjs.dev/config-components
     components: true,
@@ -36,7 +38,26 @@ export default {
     buildModules: [],
 
     // Modules: https://go.nuxtjs.dev/config-modules
-    modules: ["@nuxt/image", "@nuxtjs/axios", "@nuxtjs/auth-next"],
+    modules: [
+        "@nuxt/image",
+        "@nuxtjs/axios",
+        "@nuxtjs/auth-next",
+        "@nuxtjs/toast"
+    ],
+
+    toast: {
+        position: "bottom-right"
+        // register: [
+        //     // Register custom toasts
+        //     {
+        //         name: "my-error",
+        //         message: "Oops...Something went wrong",
+        //         options: {
+        //             type: "error"
+        //         }
+        //     }
+        // ]
+    },
 
     // Axios Config
     axios: {
@@ -73,6 +94,10 @@ export default {
 
     // Build Configuration: https://go.nuxtjs.dev/config-build
     build: {},
+
+    router: {
+        middleware: ["auth"]
+    },
 
     loading: { color: "#15a362" }
 };
