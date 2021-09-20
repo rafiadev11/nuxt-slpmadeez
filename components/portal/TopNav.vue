@@ -27,8 +27,8 @@
                         <div class="app-utility-item app-user-dropdown dropdown">
                             <a class="dropdown-toggle" id="user-dropdown-toggle" data-bs-toggle="dropdown" href="#"
                                role="button" aria-expanded="false">
-<!--                                <img src="/images/user.png" alt="user profile">-->
-                                {{this.$auth.user.name}}
+                                <img src="/images/user.png" alt="user profile">
+                                {{fullName}}
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="user-dropdown-toggle">
                                 <li><a class="dropdown-item" href="#">Settings</a></li>
@@ -48,6 +48,11 @@
 <script>
 export default {
     name: "TopNav",
+    data(){
+        return {
+            fullName: this.$auth.user.name
+        }
+    },
     methods: {
         async logout(){
             await this.$auth.logout();

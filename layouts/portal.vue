@@ -16,7 +16,14 @@
 
 <script>
 export default {
-    name: "portal"
+    name: "portal",
+    head() {
+        return {
+            script: [
+                {hid: "side-panel", src: "/js/side-menu.js", defer: true}
+            ]
+        }
+    }
 }
 </script>
 
