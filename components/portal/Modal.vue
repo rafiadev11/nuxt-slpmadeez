@@ -2,14 +2,14 @@
     <!-- Right Sidebar starts -->
     <div class="modal modal-slide-in fade" :id="modalId">
         <div class="modal-dialog sidebar-lg">
-            <div class="modal-content p-0">
+            <div class="modal-content">
                 <div class="modal-header align-items-center mb-1">
                     <h5 class="modal-title">{{modalTitle}}</h5>
-                    <div class="todo-item-action d-flex align-items-center justify-content-between ms-auto">
-                        <i class="bi bi-x-lg cursor-pointer" data-bs-dismiss="modal"></i>
+                    <div class="d-flex align-items-center justify-content-between ms-auto">
+                        <i class="bi bi-x-lg cursor-pointer closeModal" data-bs-dismiss="modal"></i>
                     </div>
                 </div>
-                <div class="modal-body flex-grow-1 pb-sm-0 pb-3">
+                <div class="modal-body flex-grow-1 pb-sm-0 pt-3">
                     <slot/>
                 </div>
             </div>
@@ -139,8 +139,6 @@ export default {
         width: (25rem - 5);
 
         .modal-content {
-            //padding-bottom: ($modal-title-line-height * $btn-close-width) + $modal-header-padding-y;
-            //padding-top: ($modal-title-line-height * $btn-close-width) + $modal-header-padding-y;
             overflow: auto;
             border-radius: 0;
             height: 100%;

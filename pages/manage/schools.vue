@@ -16,7 +16,8 @@
                             </div>
                             <div class="col-auto">
                                 <div class="card-header-action">
-                                    <a href="#" data-bs-toggle="modal" data-bs-target="#school-modal">
+                                    <a href="#" @click="setFormData(null, null)" data-bs-toggle="modal"
+                                       data-bs-target="#school-modal">
                                         <i class="bi bi-plus-circle"></i> Add School
                                     </a>
                                 </div>
@@ -30,8 +31,13 @@
                                 <tr v-for="(school, index) in schools" :key="index">
                                     <td><a href="#">{{ school.name }}</a></td>
                                     <td class="stat-cell">
-                                        <i class="bi bi-pencil-square"></i>
-                                        / <i class="bi bi-trash-fill"></i>
+                                        <i class="bi bi-pencil-square cursor-pointer"
+                                           data-bs-toggle="modal"
+                                           data-bs-target="#school-modal"
+                                           @click="setFormData(school.id, school.name)"></i>
+                                        /
+                                        <i class="bi bi-trash-fill cursor-pointer"
+                                           @click="deleteSchool(school.id, index)"></i>
                                     </td>
                                 </tr>
                                 </tbody>
@@ -42,9 +48,20 @@
             </div>
         </div>
 
-        <portal-modal modal-title="Add a School" modal-id="school-modal">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Debitis delectus eligendi,
-            iste itaque laborum numquam sunt. Autem dolores mollitia natus neque nobis nulla placeat qui quo veniam.
-            Deserunt omnis, possimus.
+        <portal-modal :modal-title="modalTitle" modal-id="school-modal">
+            <form @submit.prevent="addUpdateSchool">
+                <div>
+                    <label class="sr-only" for="school-name">School Name</label>
+                    <input id="school-name" v-model="form.name" type="text" class="form-control"
+                           placeholder="School Name" required="required"><br>
+                    <span v-if="errors !== null && errors.name">{{ errors.name[0] }}</span>
+                </div>
+                <input type="hidden" v-model="form.id">
+                <div>
+                    <main-button type="submit" class="app-btn-primary">{{ buttonText }}</main-button>
+                    <main-button type="button" class="app-btn-secondary" @click.native="closeForm">Cancel</main-button>
+                </div>
+            </form>
         </portal-modal>
     </div>
 
@@ -57,28 +74,90 @@ export default {
     data() {
         return {
             schools: null,
-            formData: {
-                name: ''
+            form: {
+                id: null,
+                name: null
             },
-            errors: null
+            errors: null,
+            modalTitle: 'Add a School',
+            buttonText: 'Add'
         }
     },
     methods: {
-        addSchool() {
-            this.$addSchool(this.formData).then(response => {
-                this.formData.name = '';
-                this.schools.push(response.data);
-                this.$toast.success("School Added Successfully", {
-                    duration: 3000
-                })
-            }).catch(error => {
-                if (error.response.status === 422) {
-                    this.errors = error.response.data.errors
-                }
-            })
+        setFormData(id, name) {
+            this.modalTitle = id === null ? 'Add a School' : 'Update School';
+            this.buttonText = id === null ? 'Add' : 'Update';
+            this.form.id = id;
+            this.form.name = name;
         },
-        async updateSchool(id) {
+        addUpdateSchool() {
+            if (this.form.id === null) {
+                this.$addSchool(this.form).then(response => {
+                    this.form.name = '';
+                    this.closeForm();
+                    this.schools.push(response.data);
+                    this.$toast.success("Success", {
+                        duration: 3000
+                    })
+                }).catch(error => {
+                    if (error.response.status === 422) {
+                        this.errors = error.response.data.errors
+                    }
+                });
+            } else {
+                this.$updateSchool(this.form).then(response => {
+                    this.form.name = '';
+                    this.schools.find(school => {
+                        if (school.id === response.data.id) {
+                            school.name = response.data.name;
+                        }
+                    });
+                    this.closeForm();
+                    this.$toast.success("Success", {
+                        duration: 3000
+                    })
+                }).catch(error => {
+                    if (error.response.status === 422) {
+                        this.errors = error.response.data.errors
+                    }
+                });
+            }
 
+        },
+        async deleteSchool(id, index) {
+            const data = await this.$swal.fire({
+                title: 'Testing',
+                html:
+                    "You are about to delete <em><mark>" + this.id + "</mark></em>. <br><br> Type <strong>DELETE</strong> to confirm.",
+                input: 'text',
+                showCancelButton: true,
+                confirmButtonColor: '#ff8057',
+                inputValidator: (value) => {
+                    if (!value || value !== "DELETE") {
+                        return 'You need to enter "DELETE" to remove the record!'
+                    }
+                }
+            });
+            if (data.isConfirmed) {
+                this.$deleteSchool(id).then(response => {
+                    if (response.data) {
+                        this.schools.splice(index, 1);
+                        this.$toast.success("Success", {
+                            duration: 3000
+                        });
+                    }
+
+                }).catch(error => {
+                    if (error.response.status === 422) {
+                        this.errors = error.response.data.errors
+                    }
+                });
+            }
+        },
+        closeForm() {
+            const myModal = document.getElementById('school-modal');
+            const modal = myModal.querySelectorAll('.closeModal')[0];
+            modal.click();
         }
     },
     created() {
@@ -92,6 +171,6 @@ export default {
     }
 }
 </script>
-<style lang="scss" scoped>
-
+<style lang="scss">
+@import "node_modules/sweetalert2/dist/sweetalert2.min.css";
 </style>

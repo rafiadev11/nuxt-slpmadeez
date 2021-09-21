@@ -1,12 +1,17 @@
 <template>
 
   <div>
-    <NuxtLink to="login"><button class="btn app-btn-primary">Login</button></NuxtLink>
+    <NuxtLink to="login">
+        <main-button type="button" class="app-btn-primary">Login</main-button>
+    </NuxtLink>
   </div>
 
 
 </template>
 
 <script>
-export default {}
+export default {
+    layout: 'default',
+    auth: false
+}
 </script>

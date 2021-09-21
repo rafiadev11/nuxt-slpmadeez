@@ -50,13 +50,16 @@ export default {
     name: "TopNav",
     data(){
         return {
-            fullName: this.$auth.user.name
+            fullName: ''
         }
     },
     methods: {
         async logout(){
             await this.$auth.logout();
         }
+    },
+    created() {
+        this.fullName = this.$auth.user.name;
     }
 }
 </script>

@@ -7,6 +7,12 @@ const schools = $axios => ({
     },
     addSchool: async formData => {
         return await $axios.post("/api/schools", formData);
+    },
+    updateSchool: async formData => {
+        return await $axios.patch("/api/schools/" + formData.id, formData);
+    },
+    deleteSchool: async id => {
+        return await $axios.delete("/api/schools/" + id);
     }
 });
 export default schools;

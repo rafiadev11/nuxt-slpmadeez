@@ -36,7 +36,7 @@
                     </div>
                 </div>
                 <div class="text-center">
-                    <main-button type="submit">Log In</main-button>
+                    <main-button type="submit" class="app-btn-primary">Log In</main-button>
                 </div>
             </form>
             <div class="auth-option text-center pt-5">No Account? Sign up

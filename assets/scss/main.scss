@@ -794,6 +794,10 @@ button.close {
   }
 }
 
+.cursor-pointer{
+    cursor: pointer;
+}
+
 
 // X-Large devices (large desktops, 1200px and up)
 @media (min-width: 1200px) {
@@ -814,4 +818,6 @@ button.close {
     font-size: 0.75rem;
   }
 }
+
+
 

@@ -1,5 +1,5 @@
 <template>
-    <button :type="type" class="btn app-btn-primary w-100 theme-btn mx-auto"><slot/></button>
+    <button :type="type" :class="['btn']"><slot/></button>
 </template>
 
 <script>
