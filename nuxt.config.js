@@ -24,7 +24,6 @@ export default {
     // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
     plugins: [
         { src: "~plugins/v-calendar.js", ssr: false },
-        { src: "~plugins/swal.js", ssr: false },
         { src: "~plugins/service.js" },
         {
             src: "~/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js",
@@ -36,7 +35,7 @@ export default {
     components: true,
 
     // Modules for dev and build (recommended): https://go.nuxtjs.dev/config-modules
-    buildModules: [],
+    buildModules: ["@nuxtjs/composition-api/module"],
 
     // Modules: https://go.nuxtjs.dev/config-modules
     modules: [
@@ -100,5 +99,9 @@ export default {
         middleware: ["auth"]
     },
 
-    loading: { color: "#15a362" }
+    loading: { color: "#15a362" },
+    generate: {
+        // choose to suit your project
+        interval: 2000
+    }
 };

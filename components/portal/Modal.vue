@@ -1,10 +1,9 @@
 <template>
-    <!-- Right Sidebar starts -->
     <div class="modal modal-slide-in fade" :id="modalId">
         <div class="modal-dialog sidebar-lg">
             <div class="modal-content">
                 <div class="modal-header align-items-center mb-1">
-                    <h5 class="modal-title">{{modalTitle}}</h5>
+                    <h5 class="modal-title">{{ modalTitle }}</h5>
                     <div class="d-flex align-items-center justify-content-between ms-auto">
                         <i class="bi bi-x-lg cursor-pointer closeModal" data-bs-dismiss="modal"></i>
                     </div>
@@ -21,14 +20,24 @@
 <script>
 export default {
     name: "modal",
-    props:['modalTitle','modalId']
+    props: ['modalTitle', 'modalId'],
+    methods: {
+        closeForm() {
+            const myModal = document.getElementById(this.modalId);
+            const modal = myModal.querySelectorAll('.closeModal')[0];
+            modal.click();
+        }
+    },
+    created() {
+        this.$nuxt.$on('closeModal', this.closeForm);
+    }
 }
 </script>
 
 <style lang="scss" scoped>
 @import "assets/scss/vars";
 @import "assets/scss/mixins";
- //Modals
+//Modals
 
 .modal {
     // Modal Header

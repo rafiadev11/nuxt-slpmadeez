@@ -27,6 +27,10 @@ export default {
 }
 </script>
 
+<style lang="css">
+@import "node_modules/sweetalert2/dist/sweetalert2.min.css";
+</style>
+
 <style lang="scss" scoped>
 @import "assets/scss/vars";
 @import "assets/scss/mixins";
