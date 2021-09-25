@@ -2,34 +2,34 @@
     <div>
         <div class="row g-3 mb-4 justify-content-between">
             <div class="col-auto">
-                <portal-page-title>My Schools</portal-page-title>
+                <portal-page-title>Disorders</portal-page-title>
             </div>
 
         </div>
         <div class="row">
             <div class="col-lg-8">
                 <portal-card>
-                    <template v-slot:header-title>Schools List</template>
+                    <template v-slot:header-title>Disorders List</template>
                     <template v-slot:header-button>
                         <a href="#" @click="setFormData(null, null)" data-bs-toggle="modal"
                            data-bs-target="#myModal">
-                            <i class="bi bi-plus-circle"></i> Add School
+                            <i class="bi bi-plus-circle"></i> Add a Disorder
                         </a>
                     </template>
                     <template v-slot:default>
                         <div class="table-responsive">
                             <table class="table table-borderless mb-0">
                                 <tbody>
-                                <tr v-for="(school, index) in schools" :key="index">
-                                    <td><a href="#">{{ school.name }}</a></td>
+                                <tr v-for="(disorder, index) in disorders" :key="index">
+                                    <td><a href="#">{{ disorder.name }}</a></td>
                                     <td class="stat-cell">
                                         <i class="bi bi-pencil-square cursor-pointer"
                                            data-bs-toggle="modal"
                                            data-bs-target="#myModal"
-                                           @click="setFormData(school.id, school.name)"></i>
+                                           @click="setFormData(disorder.id, disorder.name)"></i>
                                         /
                                         <i class="bi bi-trash-fill cursor-pointer"
-                                           @click="deleteSchool(school.id, index, school.name)"></i>
+                                           @click="deleteDisorder(disorder.id, index, disorder.name)"></i>
                                     </td>
                                 </tr>
                                 </tbody>
@@ -41,12 +41,12 @@
         </div>
 
         <portal-modal :modal-title="modalTitle" modal-id="myModal">
-            <form @submit.prevent="addUpdateSchool">
+            <form @submit.prevent="addUpdateDisorder">
                 <div>
-                    <label class="sr-only" for="school-name">School Name</label>
-                    <input id="school-name" v-model="form.name" type="text" class="form-control"
-                           placeholder="School Name"><br>
-                    <span v-if="errors !== null && errors.name" class="text-danger">{{ errors.name[0] }}</span>
+                    <label class="sr-only" for="disorder-name">Disorder</label>
+                    <input id="disorder-name" v-model="form.name" type="text" class="form-control"
+                           placeholder="Disorder" required="required"><br>
+                    <span v-if="errors !== null && errors.name">{{ errors.name[0] }}</span>
                 </div>
                 <input type="hidden" v-model="form.id">
                 <div>
@@ -65,12 +65,12 @@ import swal from "@/utils/swal";
 export default {
     layout: 'portal',
     head: {
-        title: 'My Schools',
+        title: 'Disorders',
         meta: [
             {
                 hid: 'description',
                 name: 'description',
-                content: 'Manage my schools list.'
+                content: 'Manage disorders list.'
             }
         ]
     },
@@ -78,26 +78,26 @@ export default {
         // Data
         const context = useContext();
         const store = useStore();
-        let schools = ref([]);
+        let disorders = ref([]);
         const form = reactive({
             id: null,
             name: ''
         });
-        let errors = ref([]);
-        const modalTitle = ref('Add a School');
+        let errors = reactive({name: null});
+        const modalTitle = ref('Add a Disorder');
         const buttonText = ref('Add');
 
         // Methods
         const setFormData = (id, name) => {
-            modalTitle.value = id === null ? 'Add a School' : 'Update School';
+            modalTitle.value = id === null ? 'Add a Disorder' : 'Update Disorder';
             buttonText.value = id === null ? 'Add' : 'Update';
             form.id = id;
             form.name = name;
         }
-        const addUpdateSchool = () => {
+        const addUpdateDisorder = () => {
             if (form.id === null) {
-                const school = store.dispatch("schools/addSchool", form);
-                school.then(() => {
+                const disorder = store.dispatch("disorders/addDisorder", form);
+                disorder.then(() => {
                     success();
                 }).catch(error => {
                     if (error.response.status === 422) {
@@ -105,8 +105,8 @@ export default {
                     }
                 })
             } else {
-                const school = store.dispatch("schools/updateSchool", form);
-                school.then(() => {
+                const disorder = store.dispatch("disorders/updateDisorder", form);
+                disorder.then(() => {
                     success();
                 }).catch(error => {
                     if (error.response.status === 422) {
@@ -116,11 +116,11 @@ export default {
             }
 
         }
-        const deleteSchool = async (id, index, label) => {
+        const deleteDisorder = async (id, index, label) => {
             const data = await swal.remove(label);
             if (data.isConfirmed) {
-                const school = store.dispatch("schools/deleteSchool", {id, index});
-                school.then(() => {
+                const disorder = store.dispatch("disorders/deleteDisorder", {id, index});
+                disorder.then(() => {
                     success();
                 }).catch(error => {
                     console.log(error);
@@ -139,20 +139,20 @@ export default {
 
         // LifeCycle Hooks
         onMounted(async () => {
-            await store.dispatch('schools/getMySchools');
-            schools.value = store.state.schools.mySchools;
+            await store.dispatch('disorders/getDisorders');
+            disorders.value = store.state.disorders.disorders;
         });
 
         // Available Data
         return {
-            schools,
+            disorders,
             form,
             errors,
             modalTitle,
             buttonText,
             setFormData,
-            addUpdateSchool,
-            deleteSchool
+            addUpdateDisorder,
+            deleteDisorder
         }
     }
 }

@@ -49,27 +49,34 @@
 </template>
 
 <script>
+import {reactive, ref, useContext} from "@nuxtjs/composition-api";
+
 export default {
     layout: 'auth',
-    data: () => ({
-        form: {
+    setup(){
+        const context = useContext();
+        let form = reactive({
             email: '',
             password: ''
-        },
-        error: ''
-    }),
-    methods: {
-        async login() {
+        });
+        let error = ref();
+
+        const login = async () => {
             try {
-                await this.$auth.loginWith('laravelSanctum', {data: this.form})
-            } catch (error) {
-                if(error.response.status === 422){
-                    this.error = 'Incorrect email or password';
-                    this.form.password = '';
+                await context.$auth.loginWith('laravelSanctum', {data: form})
+            } catch (err) {
+                if(err.response.status === 422){
+                    error.value = 'Incorrect email or password';
+                    form.password = '';
                 }
             }
         }
-    }
 
+        return {
+            form,
+            error,
+            login
+        }
+    }
 }
 </script>

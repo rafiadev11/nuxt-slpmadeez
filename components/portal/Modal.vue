@@ -20,7 +20,15 @@
 <script>
 export default {
     name: "modal",
-    props: ['modalTitle', 'modalId'],
+    props: {
+        modalTitle: {
+            type: String
+        },
+        modalId: {
+            default: 'myModal',
+            type: String
+        }
+    },
     methods: {
         closeForm() {
             const myModal = document.getElementById(this.modalId);

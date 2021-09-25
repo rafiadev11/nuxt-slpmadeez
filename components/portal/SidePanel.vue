@@ -60,7 +60,10 @@
                                     <NuxtLink class="submenu-link" to="/manage/school-years">School Years</NuxtLink>
                                 </li>
                                 <li class="submenu-item">
-                                    <NuxtLink class="submenu-link" to="#">Students</NuxtLink>
+                                    <NuxtLink class="submenu-link" to="/manage/disorders">Disorders</NuxtLink>
+                                </li>
+                                <li class="submenu-item">
+                                    <NuxtLink class="submenu-link" to="/manage/students">Students</NuxtLink>
                                 </li>
                             </ul>
                         </div>
