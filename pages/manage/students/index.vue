@@ -11,17 +11,16 @@
                 <portal-card>
                     <template v-slot:header-title>Students List</template>
                     <template v-slot:header-button>
-                        <a href="#" @click="setFormData(null, null)" data-bs-toggle="modal"
-                           data-bs-target="#myModal">
+                        <NuxtLink to="/manage/students/add">
                             <i class="bi bi-plus-circle"></i> Add a Student
-                        </a>
+                        </NuxtLink>
                     </template>
                     <template v-slot:default>
                         <div class="row flex-row">
                             <div class="col-auto flex-fill">
                                 <div class="page-utilities">
-                                    <label for="school">Schools</label>
-                                    <select id="school" class="form-select form-select-sm" @change="getSchoolYears"
+                                    <label>Schools</label>
+                                    <select class="form-select form-select-sm" @change="getSchoolYears"
                                             v-model="schoolId">
                                         <option v-for="(school, index) in schools"
                                                 :key="index"
@@ -33,20 +32,20 @@
                             </div>
                             <div class="col-auto flex-fill">
                                 <div class="page-utilities">
-                                    <label for="schoolYear">School Years</label>
-                                    <select id="schoolYear" class="form-select form-select-sm" v-model="schoolYearId">
+                                    <label>School Years</label>
+                                    <select class="form-select form-select-sm" v-model="schoolYearId">
                                         <option v-for="(schoolYear, index) in schoolYears"
                                                 :key="index"
                                                 :value="schoolYear.id">
-                                            {{ schoolYear.start }} - {{ schoolYear.start }}
+                                            {{ schoolYear.start | formatDate }} - {{ schoolYear.end | formatDate }}
                                         </option>
                                     </select>
                                 </div>
                             </div>
                             <div class="col-auto flex-fill">
                                 <div class="page-utilities">
-                                    <label for="disorder">Disorders</label>
-                                    <select id="disorder" class="form-select form-select-sm" v-model="disorderId">
+                                    <label>Disorders</label>
+                                    <select class="form-select form-select-sm" v-model="disorderId">
                                         <option v-for="(disorder, index) in disorders"
                                                 :key="index"
                                                 :value="disorder.id">
@@ -62,16 +61,14 @@
         </div>
 
         <portal-modal :modal-title="modalTitle" modal-id="myModal">
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis commodi consequuntur dolore error eum
-            incidunt itaque, laborum modi pariatur qui quia quibusdam sit tempora temporibus veniam. Animi ipsam sit
-            temporibus!
+
         </portal-modal>
     </div>
 
 </template>
 
 <script>
-import {onMounted, reactive, ref, useContext, useStore} from "@nuxtjs/composition-api";
+import {onMounted, ref, useContext, useStore} from "@nuxtjs/composition-api";
 
 export default {
     layout: 'portal',
@@ -85,9 +82,15 @@ export default {
             }
         ]
     },
+    filters: {
+        formatDate: (date) => {
+            const options = {year: 'numeric', timeZone: 'UTC'};
+            return new Date(date).toLocaleDateString('en-US', options);
+        }
+    },
     setup() {
         // Data
-        const context = useContext();
+        // const context = useContext();
         const store = useStore();
         let schools = ref([]);
         const schoolId = ref();
@@ -96,17 +99,8 @@ export default {
         const disorders = ref([]);
         const disorderId = ref(0);
         let students = ref([]);
-        let errors = reactive({name: null});
         const modalTitle = ref('Add a Student');
         const buttonText = ref('Add');
-
-        // Methods
-        const setFormData = (id, name) => {
-            modalTitle.value = id === null ? 'Add a Student' : 'Update Student';
-            buttonText.value = id === null ? 'Add' : 'Update';
-            form.id = id;
-            form.name = name;
-        }
 
         const getSchools = async () => {
             await store.dispatch('schools/getMySchools');
@@ -148,10 +142,8 @@ export default {
             disorders,
             disorderId,
             students,
-            errors,
             modalTitle,
             buttonText,
-            setFormData,
             getSchoolYears,
             getDisorders
 
