@@ -68,7 +68,7 @@
 </template>
 
 <script>
-import {onMounted, ref, useContext, useStore} from "@nuxtjs/composition-api";
+import {onMounted, ref, useStore} from "@nuxtjs/composition-api";
 
 export default {
     layout: 'portal',

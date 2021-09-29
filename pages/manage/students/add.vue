@@ -134,7 +134,7 @@
 </template>
 
 <script>
-import {onMounted, reactive, ref, useContext, useStore, watch} from "@nuxtjs/composition-api";
+import {onMounted, reactive, ref, useStore, watch} from "@nuxtjs/composition-api";
 
 export default {
     layout: 'portal',
