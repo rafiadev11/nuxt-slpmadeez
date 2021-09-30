@@ -75,13 +75,10 @@
                             </div>
                             <div class="row mb-4">
                                 <div class="col-lg-12 mb-4">
-                                    <label class="sr-only" for="disorders">Select disorder(s) </label>
-                                    <select id="disorders" class="form-control form-select" multiple
-                                            v-model="form.disorders">
-                                        <option v-for="(disorder, index) in disorders" :key="index"
-                                                :value="{id: disorder.id, name:disorder.name}">{{ disorder.name }}
-                                        </option>
-                                    </select>
+                                    <label class="sr-only">Select disorder(s) </label>
+
+                                    <v-select label="name" :options="disorders"
+                                              v-model="form.disorders" @input="setSessions" multiple/>
                                     <small>You can select multiple disorders</small>
                                     <span v-if="errors !== null && errors.disorder_id"
                                           class="text-danger">{{ errors.disorder_id[0] }}</span>
@@ -94,7 +91,8 @@
                                                 <div class="col-lg-4">
                                                     <label class="sr-only" for="sessionDuration">Session Duration
                                                         (minutes)</label>
-                                                    <input id="sessionDuration" v-model="session.duration" type="number"
+                                                    <input id="sessionDuration" type="number"
+
                                                            class="form-control"
                                                            required
                                                            placeholder="Minutes">
@@ -102,15 +100,17 @@
                                                 <div class="col-lg-4">
                                                     <label class="sr-only" for="sessionsPerMonth">Sessions per
                                                         Month</label>
-                                                    <input id="sessionsPerMonth" v-model="session.total_per_month"
+                                                    <input id="sessionsPerMonth"
                                                            type="number" class="form-control"
+
                                                            required
                                                            placeholder="# of Sessions">
                                                 </div>
-                                                <div class="col-lg-4" v-if="session.annual_minutes">
+                                                <div class="col-lg-4">
                                                     <label class="sr-only" for="annualMinutes">Annual Minutes</label>
-                                                    <input id="annualMinutes" v-model="session.annual_minutes"
+                                                    <input id="annualMinutes"
                                                            type="number" readonly class="form-control"
+
                                                            required>
                                                 </div>
                                             </div>
@@ -134,7 +134,8 @@
 </template>
 
 <script>
-import {onMounted, reactive, ref, useStore, watch} from "@nuxtjs/composition-api";
+import vSelect from "vue-select";
+import {onMounted, reactive, ref, useStore, watchEffect} from "@nuxtjs/composition-api";
 
 export default {
     layout: 'portal',
@@ -153,11 +154,9 @@ export default {
             const options = {year: 'numeric', timeZone: 'UTC'};
             return new Date(date).toLocaleDateString('en-US', options);
         },
-        // upperCase: (value) => {
-        //     if (!value) return ''
-        //     value = value.toString()
-        //     return value.charAt(0).toUpperCase() + value.slice(1)
-        // }
+    },
+    components: {
+        vSelect
     },
     setup() {
         // Data
@@ -165,24 +164,16 @@ export default {
         const store = useStore();
         const schools = ref([]);
         const schoolYears = ref([]);
-        const disorders = ref([]);
+        const disorders = ref();
         const form = reactive({
             first_name: '',
             last_name: '',
             grade: '',
             school_id: '',
             school_year_id: '',
-            disorders: [{
-                id: '',
-                name: ''
-            }],
+            disorders: [],
         });
-        let session = ref({
-            duration: null,
-            total_per_month: null,
-            annual_minutes: 0
-        });
-
+        let sessions = ref([]);
         let errors = ref([]);
         const grades = ['1st', '2nd', '3rd', '4th', '5th', '6th', '7th'];
 
@@ -201,11 +192,12 @@ export default {
             disorders.value = store.state.disorders.disorders;
         }
 
-        watch(session.value, (value) => {
-            if (value.duration > 0 && value.total_per_month > 0) {
-                session.value.annual_minutes = (value.duration * value.total_per_month * 8)
+        const setSessions = async (values) => {
+            for(let i = 0; i < values.length; i++){
+                sessions.value = [{id: values[i].id, duration: null}]
             }
-        })
+        }
+
 
         const addStudent = async () => {
             console.log(form.first_name)
@@ -227,15 +219,16 @@ export default {
             form,
             errors,
             grades,
-            session,
+            sessions,
             getSchoolYears,
             getDisorders,
-            addStudent
+            addStudent,
+            setSessions
 
         }
     }
 }
 </script>
 <style lang="scss">
-
+@import "node_modules/vue-select/dist/vue-select.css";
 </style>
