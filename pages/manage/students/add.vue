@@ -92,7 +92,7 @@
                                                     <label class="sr-only" for="sessionDuration">Session Duration
                                                         (minutes)</label>
                                                     <input id="sessionDuration" type="number"
-
+                                                           v-model="sessions[index].duration"
                                                            class="form-control"
                                                            required
                                                            placeholder="Minutes">
@@ -102,7 +102,7 @@
                                                         Month</label>
                                                     <input id="sessionsPerMonth"
                                                            type="number" class="form-control"
-
+                                                           v-model="sessions[index].perMonth"
                                                            required
                                                            placeholder="# of Sessions">
                                                 </div>
@@ -110,7 +110,7 @@
                                                     <label class="sr-only" for="annualMinutes">Annual Minutes</label>
                                                     <input id="annualMinutes"
                                                            type="number" readonly class="form-control"
-
+                                                           v-model="sessions[index].annualMinutes"
                                                            required>
                                                 </div>
                                             </div>
@@ -194,7 +194,18 @@ export default {
 
         const setSessions = async (values) => {
             for(let i = 0; i < values.length; i++){
-                sessions.value = [{id: values[i].id, duration: null}]
+                const session = sessions.value.find(item => {
+                    return item.id === values[i].id
+                })
+                if(session === undefined){
+                    sessions.value.push(
+                        {
+                            id: values[i].id,
+                            duration: null,
+                            perMonth: null,
+                            annualMinutes: 0
+                        });
+                }
             }
         }
 
