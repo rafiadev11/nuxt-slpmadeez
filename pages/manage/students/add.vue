@@ -87,7 +87,7 @@
                                     <div class="card mb-3" v-for="(disorder, index) in form.disorders" :key="index">
                                         <div class="card-header slp-bg-green">{{ disorder.name }}</div>
                                         <div class="card-body">
-                                            <div class="row">
+                                            <div class="row mb-4">
                                                 <div class="col-lg-4">
                                                     <label class="sr-only" for="sessionDuration">Session Duration
                                                         (minutes)</label>
@@ -110,9 +110,76 @@
                                                     <label class="sr-only" for="annualMinutes">Annual Minutes</label>
                                                     <input id="annualMinutes"
                                                            type="number" readonly class="form-control"
-                                                           v-model="sessions[index].annualMinutes"
+                                                           :value="sessions[index].duration * sessions[index].perMonth * 8"
                                                            required>
                                                 </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-lg-12 mb-3">
+                                                    <div class="card mb-3">
+                                                        <div class="card-body">
+                                                            <div class="text-center mb-3"><u>Weekly Schedule</u></div>
+                                                            <div class="row">
+                                                                <div class="col-lg-6">
+                                                                    <div>Weekdays</div>
+                                                                    <div class="form-check mb-2">
+                                                                        <input class="form-check-input" type="checkbox" value="Monday">
+                                                                        <label class="form-check-label">Monday</label>
+                                                                    </div>
+                                                                    <div class="form-check mb-2">
+                                                                        <input class="form-check-input" type="checkbox" value="Tuesday">
+                                                                        <label class="form-check-label">Tuesday</label>
+                                                                    </div>
+                                                                    <div class="form-check mb-2">
+                                                                        <input class="form-check-input" type="checkbox" value="Wednesday">
+                                                                        <label class="form-check-label">Wednesday</label>
+                                                                    </div>
+                                                                    <div class="form-check mb-2">
+                                                                        <input class="form-check-input" type="checkbox" value="Thursday">
+                                                                        <label class="form-check-label">Thursday</label>
+                                                                    </div>
+                                                                    <div class="form-check mb-2">
+                                                                        <input class="form-check-input" type="checkbox" value="Friday">
+                                                                        <label class="form-check-label">Friday</label>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-lg-6">
+                                                                    <div class="mb-4">
+                                                                        <label class="sr-only" for="startTime">Start Time</label>
+                                                                        <input id="startTime" type="time" class="form-control"
+                                                                               required
+                                                                               placeholder="Start Time">
+                                                                        <span v-if="errors !== null && errors.start_time"
+                                                                              class="text-danger">{{ errors.start_time[0] }}</span>
+                                                                    </div>
+                                                                    <div>
+                                                                        <label class="sr-only" for="endTime">End Time</label>
+                                                                        <input id="endTime" type="time" class="form-control"
+                                                                               required
+                                                                               placeholder="End Time">
+                                                                        <span v-if="errors !== null && errors.end_time"
+                                                                              class="text-danger">{{ errors.end_time[0] }}</span>
+                                                                    </div>
+
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="card">
+                                                        <div class="card-body">
+                                                            <div class="mb-4">
+                                                                <label class="sr-only">Objectives</label>
+                                                                <div>
+                                                                    <textarea class="form-control"></textarea>
+                                                                </div>
+                                                                <div class="mt-2"><a href="#"><i class="bi bi-plus-circle"></i> Add Objective</a></div>
+
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+
                                             </div>
                                         </div>
                                     </div>
@@ -172,6 +239,7 @@ export default {
             school_id: '',
             school_year_id: '',
             disorders: [],
+            weekdays:[]
         });
         let sessions = ref([]);
         let errors = ref([]);
