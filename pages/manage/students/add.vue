@@ -110,8 +110,7 @@
                                                     <label class="sr-only" for="annualMinutes">Annual Minutes</label>
                                                     <input id="annualMinutes"
                                                            type="number" readonly class="form-control"
-                                                           :value="sessions[index].duration * sessions[index].perMonth * 8"
-                                                           required>
+                                                           :value="sessions[index].duration * sessions[index].perMonth * 8">
                                                 </div>
                                             </div>
                                             <div class="row">
@@ -185,9 +184,11 @@
                                                     <div class="card">
                                                         <div class="card-header">Objectives</div>
                                                         <div class="card-body">
-                                                            <div class="mb-4" v-for="(objective, idx) in objectives[index].values">
+                                                            <div class="mb-4"
+                                                                 v-for="(objective, idx) in objectives[index].values">
                                                                 <div>
-                                                                    <textarea v-model="objective.name" class="form-control"></textarea>
+                                                                    <textarea v-model="objective.name"
+                                                                              class="form-control"></textarea>
                                                                 </div>
                                                                 <div class="mt-2">
                                                                     <small>
@@ -255,8 +256,6 @@ export default {
         vSelect
     },
     setup() {
-        // Data
-        // const context = useContext();
         const store = useStore();
         const schools = ref([]);
         const schoolYears = ref([]);
@@ -267,7 +266,9 @@ export default {
             grade: '',
             school_id: '',
             school_year_id: '',
-            disorders: []
+            disorders: [],
+            sessions: [],
+            objectives: []
         });
         let sessions = ref([]);
         let objectives = ref([]);
@@ -292,15 +293,14 @@ export default {
         const setSessions = async (values) => {
             for (let i = 0; i < values.length; i++) {
                 const session = sessions.value.find(item => {
-                    return item.id === values[i].id
+                    return item.disorder_id === values[i].id
                 })
                 if (session === undefined) {
                     sessions.value.push(
                         {
-                            id: values[i].id,
+                            disorder_id: values[i].id,
                             duration: null,
                             perMonth: null,
-                            annualMinutes: 0,
                             schedule: [
                                 {
                                     day: 'Monday',
@@ -347,11 +347,11 @@ export default {
                 }
 
                 const objective = objectives.value.find(item => {
-                    return item.disorderId === values[i].id;
+                    return item.disorder_id === values[i].id;
                 })
-                if(objective === undefined){
+                if (objective === undefined) {
                     objectives.value.push({
-                        disorderId: values[i].id,
+                        disorder_id: values[i].id,
                         values: []
                     })
                 }
@@ -359,8 +359,8 @@ export default {
         }
 
         const addObjective = async (disorderId) => {
-            const objectiveIdx = objectives.value.findIndex(idx => idx.disorderId === disorderId);
-            objectives.value[objectiveIdx].values.push({name:''})
+            const objectiveIdx = objectives.value.findIndex(idx => idx.disorder_id === disorderId);
+            objectives.value[objectiveIdx].values.push({name: ''})
         }
 
         const removeObjective = async (idx, disorderIdx) => {
@@ -369,18 +369,27 @@ export default {
 
         const addStudent = async () => {
             // Prepare form data
+            form.sessions = sessions.value;
+            form.objectives = objectives.value;
+
             // Submit data via API
+            const student = store.dispatch("students/addStudent", form);
+            student.then((response) => {
+                console.log(response);
+            }).catch(error => {
+                if (error.response.status === 422) {
+                    errors.value = error.response.data.errors
+                }
+            })
             // Redirect to students if user selects save
             // Redirect back if user selects save and add another student
         }
-
 
         // LifeCycle Hooks
         onMounted(async () => {
             await getSchools();
             await getDisorders();
         });
-
 
         // Available Data
         return {

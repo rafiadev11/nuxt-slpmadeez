@@ -54,6 +54,48 @@
                                     </select>
                                 </div>
                             </div>
+                            <div class="col-auto flex-fill mt-4">
+                                <main-button type="button" @click.native="getStudents" class="app-btn-primary w-100">
+                                    <i class="bi bi-filter-left"></i> Filter
+                                </main-button>
+                            </div>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="table-responsive">
+                                    <table class="table mb-0">
+                                        <thead>
+                                        <tr>
+                                            <th>Student</th>
+                                            <th>Grade</th>
+                                            <th>Disorder</th>
+                                            <th>Schedule</th>
+                                            <th>Objectives</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr v-for="(goal, index) in students" :key="index">
+                                            <td>
+                                                {{ goal.student.first_name }} {{ goal.student.last_name }}
+                                                <a href="#"><i class="bi bi-pencil"></i></a>
+                                            </td>
+                                            <td>{{ goal.student.grade }}</td>
+                                            <td>{{ goal.disorder.name }}</td>
+                                            <td>
+                                                <a href="#"><i class="bi bi-calendar-week"></i></a>
+                                                /
+                                                <a href="#"><i class="bi bi-pencil"></i></a>
+                                            </td>
+                                            <td>
+                                                <a href="#"><i class="bi bi-list-check"></i></a>
+                                                /
+                                                <a href="#"><i class="bi bi-pencil"></i></a>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
                     </template>
                 </portal-card>
@@ -61,7 +103,9 @@
         </div>
 
         <portal-modal :modal-title="modalTitle" modal-id="myModal">
-
+            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Asperiores esse et excepturi exercitationem
+            facilis fugiat hic suscipit velit! Commodi deserunt in mollitia natus neque odio repellat sapiente sit ullam
+            voluptatibus?
         </portal-modal>
     </div>
 
@@ -120,7 +164,12 @@ export default {
         }
 
         const getStudents = async () => {
-            // get students based on schools, school years, and disorders
+            console.log(schoolYearId.value);
+            await store.dispatch('students/getStudents', {
+                schoolYearId: schoolYearId.value,
+                disorderId: disorderId.value
+            });
+            students.value = store.state.students.students;
         }
 
 
@@ -145,7 +194,8 @@ export default {
             modalTitle,
             buttonText,
             getSchoolYears,
-            getDisorders
+            getDisorders,
+            getStudents
 
         }
     }
