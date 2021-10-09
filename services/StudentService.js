@@ -6,10 +6,10 @@ const students = $axios => ({
     },
     addStudent: async formData => {
         return await $axios.post("/api/students", formData);
+    },
+    updateStudent: async formData => {
+        return await $axios.patch("/api/students/" + formData.id, formData);
     }
-    // updateSchool: async formData => {
-    //     return await $axios.patch("/api/schools/" + formData.id, formData);
-    // },
     // deleteSchool: async id => {
     //     return await $axios.delete("/api/schools/" + id);
     // }

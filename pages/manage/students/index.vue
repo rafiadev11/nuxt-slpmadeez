@@ -71,25 +71,30 @@
                                             <th>Disorder</th>
                                             <th>Schedule</th>
                                             <th>Objectives</th>
+                                            <th>Deactivate</th>
                                         </tr>
                                         </thead>
                                         <tbody>
                                         <tr v-for="(goal, index) in students" :key="index">
                                             <td>
                                                 {{ goal.student.first_name }} {{ goal.student.last_name }}
-                                                <a href="#"><i class="bi bi-pencil"></i></a>
+                                                <a href="#"
+                                                   @click="setStudentInfo(goal.student)"
+                                                   data-bs-toggle="modal"
+                                                   data-bs-target="#updateStudentInfo">
+                                                    <i class="bi bi-pencil"></i>
+                                                </a>
                                             </td>
                                             <td>{{ goal.student.grade }}</td>
                                             <td>{{ goal.disorder.name }}</td>
                                             <td>
-                                                <a href="#"><i class="bi bi-calendar-week"></i></a>
-                                                /
                                                 <a href="#"><i class="bi bi-pencil"></i></a>
                                             </td>
                                             <td>
-                                                <a href="#"><i class="bi bi-list-check"></i></a>
-                                                /
                                                 <a href="#"><i class="bi bi-pencil"></i></a>
+                                            </td>
+                                            <td>
+                                                <a href="#"><i class="bi bi-power"></i></a>
                                             </td>
                                         </tr>
                                         </tbody>
@@ -102,17 +107,48 @@
             </div>
         </div>
 
-        <portal-modal :modal-title="modalTitle" modal-id="myModal">
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Asperiores esse et excepturi exercitationem
-            facilis fugiat hic suscipit velit! Commodi deserunt in mollitia natus neque odio repellat sapiente sit ullam
-            voluptatibus?
+        <portal-modal modal-title="Update Student" modal-id="updateStudentInfo">
+            <form @submit.prevent="updateStudentInfo">
+                <div class="row">
+                    <div class="col-6">
+                        <label class="sr-only">First Name</label>
+                        <input v-model="form.first_name" type="text" class="form-control"
+                               placeholder="First Name"><br>
+                        <span v-if="errors !== null && errors.first_name" class="text-danger">{{
+                                errors.first_name[0]
+                            }}</span>
+                    </div>
+                    <div class="col-6">
+                        <label class="sr-only">Last Name</label>
+                        <input v-model="form.last_name" type="text" class="form-control"
+                               placeholder="Last Name"><br>
+                        <span v-if="errors !== null && errors.last_name" class="text-danger">{{
+                                errors.last_name[0]
+                            }}</span>
+                    </div>
+                    <div class="col-12">
+                        <label class="sr-only">Grade</label>
+                        <select class="form-control form-select" v-model="form.grade">
+                            <option v-for="(grade, index) in grades" :value="grade" :key="index">
+                                {{ grade }}
+                            </option>
+                        </select>
+                        <span v-if="errors !== null && errors.grade" class="text-danger">{{
+                                errors.grade[0]
+                            }}</span>
+                    </div>
+                    <div class="col-12 mt-3">
+                        <main-button type="submit" class="app-btn-primary">Update</main-button>
+                    </div>
+                </div>
+            </form>
         </portal-modal>
     </div>
 
 </template>
 
 <script>
-import {onMounted, ref, useStore} from "@nuxtjs/composition-api";
+import {onMounted, reactive, ref, useStore} from "@nuxtjs/composition-api";
 
 export default {
     layout: 'portal',
@@ -143,8 +179,15 @@ export default {
         const disorders = ref([]);
         const disorderId = ref(0);
         let students = ref([]);
-        const modalTitle = ref('Add a Student');
-        const buttonText = ref('Add');
+        const grades = ['1st', '2nd', '3rd', '4th', '5th', '6th', '7th'];
+        let form = reactive({
+            studentId: 0,
+            first_name: null,
+            last_name: null,
+            grade: null
+        });
+        let errors = ref([]);
+
 
         const getSchools = async () => {
             await store.dispatch('schools/getMySchools');
@@ -172,6 +215,26 @@ export default {
             students.value = store.state.students.students;
         }
 
+        const setStudentInfo = async (student) => {
+            form.id = student.id;
+            form.first_name = student.first_name;
+            form.last_name = student.last_name;
+            form.grade = student.grade;
+        }
+
+        const updateStudentInfo = async () => {
+            if (form.id !== 0) {
+                const student = store.dispatch("students/updateStudent", form);
+                student.then((response) => {
+                    store.commit('students/SET_STUDENT', response.data)
+                }).catch(error => {
+                    if (error.response.status === 422) {
+                        errors.value = error.response.data.errors
+                    }
+                })
+            }
+        }
+
 
         // LifeCycle Hooks
         onMounted(async () => {
@@ -191,11 +254,14 @@ export default {
             disorders,
             disorderId,
             students,
-            modalTitle,
-            buttonText,
+            form,
+            errors,
+            grades,
             getSchoolYears,
             getDisorders,
-            getStudents
+            getStudents,
+            setStudentInfo,
+            updateStudentInfo
 
         }
     }

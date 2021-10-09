@@ -8,14 +8,23 @@ export const mutations = {
     },
     ADD_STUDENT(state, data) {
         state.students.push(data);
+    },
+    UPDATE_STUDENT(state, data) {
+        state.students.find(student => {
+            if (student.id === data.id) {
+                student.first_name = data.first_name;
+                student.last_name = data.last_name;
+                student.grade = data.grade;
+            }
+        });
+    },
+    SET_STUDENT(state, payload) {
+        const { id, first_name, last_name, grade } = payload;
+        const student = state.students.find(item => item.student_id === id);
+        student.student.first_name = first_name;
+        student.student.last_name = last_name;
+        student.student.grade = grade;
     }
-    // UPDATE_SCHOOL(state, data) {
-    //     state.mySchools.find(school => {
-    //         if (school.id === data.id) {
-    //             school.name = data.name;
-    //         }
-    //     });
-    // },
     // DELETE_SCHOOL(state, { data, index }) {
     //     if (data) {
     //         state.mySchools.splice(index, 1);
@@ -34,12 +43,12 @@ export const actions = {
         const response = await $nuxt.$addStudent(formData);
         commit("ADD_STUDENT", response.data);
         return response;
+    },
+    async updateStudent({ commit }, formData) {
+        const response = await $nuxt.$updateStudent(formData);
+        commit("UPDATE_STUDENT", response.data);
+        return response;
     }
-    // async updateSchool({ commit }, formData) {
-    //     const response = await $nuxt.$updateSchool(formData);
-    //     commit("UPDATE_SCHOOL", response.data);
-    //     return response;
-    // },
     // async deleteSchool({ commit }, { id, index }) {
     //     const { data } = await $nuxt.$deleteSchool(id);
     //     commit("DELETE_SCHOOL", { data, index });
