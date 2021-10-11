@@ -2,9 +2,9 @@ const disorders = $axios => ({
     getDisorders: async () => {
         return await $axios.get("/api/disorders");
     },
-    // getSchool: async id => {
-    //     return await $axios.get("/api/schools/" + id);
-    // },
+    getUnusedDisorders: async studentId => {
+        return await $axios.get("/api/unused-disorders/" + studentId);
+    },
     addDisorder: async formData => {
         return await $axios.post("/api/disorders", formData);
     },

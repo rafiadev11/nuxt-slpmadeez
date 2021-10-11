@@ -69,9 +69,8 @@
                                             <th>Student</th>
                                             <th>Grade</th>
                                             <th>Disorder</th>
-                                            <th>Schedule</th>
-                                            <th>Objectives</th>
-                                            <th>Deactivate</th>
+                                            <th></th>
+                                            <th></th>
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -86,15 +85,26 @@
                                                 </a>
                                             </td>
                                             <td>{{ goal.student.grade }}</td>
-                                            <td>{{ goal.disorder.name }}</td>
                                             <td>
-                                                <a href="#"><i class="bi bi-pencil"></i></a>
+                                                {{ goal.disorder.name }}
+                                                <a href="#"
+                                                   @click="getUnusedDisorders(goal.student_id)"
+                                                   data-bs-toggle="modal"
+                                                   data-bs-target="#addDisorder">
+                                                    <i class="bi bi-plus-circle"></i>
+                                                </a>
                                             </td>
                                             <td>
-                                                <a href="#"><i class="bi bi-pencil"></i></a>
+                                                <a href="#" title="Update Schedule"><i class="bi bi-clock"></i></a>
+                                                /
+                                                <a href="#" title="Update Objectives"><i
+                                                    class="bi bi-list-check"></i></a>
+                                                /
+                                                <a href="#" title="Deactivate Student"><i
+                                                    class="bi bi-person-x-fill"></i></a>
                                             </td>
-                                            <td>
-                                                <a href="#"><i class="bi bi-power"></i></a>
+                                            <td class="text-center">
+                                                <a href="#">Transfer</a>
                                             </td>
                                         </tr>
                                         </tbody>
@@ -143,6 +153,147 @@
                 </div>
             </form>
         </portal-modal>
+
+        <portal-modal modal-title="Add Disorder" modal-id="addDisorder">
+            <form @submit.prevent="addDisorder">
+                <div class="row">
+                    <div class="col-12">
+                        <label class="sr-only">Select a Disorder</label>
+                        <select class="form-control" v-model="disorderForm.id">
+                            <option v-for="(disorder, index) in unusedDisorders" :key="index" :value="disorder.id">
+                                {{ disorder.name }}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-12" v-if="disorderForm.id !== null && disorderForm.id !== 0">
+                        <div class="row mt-2">
+                            <div class="col-6">
+                                <label class="sr-only" for="sessionDuration">Session Duration (minutes)</label>
+                                <input id="sessionDuration" type="number"
+                                       v-model="disorderForm.duration"
+                                       class="form-control"
+                                       required
+                                       placeholder="Minutes">
+                            </div>
+                            <div class="col-6">
+                                <label class="sr-only" for="sessionsPerMonth">Sessions per
+                                    Month</label>
+                                <input id="sessionsPerMonth"
+                                       type="number" class="form-control"
+                                       v-model="disorderForm.perMonth"
+                                       required
+                                       placeholder="# of Sessions">
+                            </div>
+                            <div class="col-12 mt-2">
+                                <label class="sr-only" for="annualMinutes">Annual Minutes</label>
+                                <input id="annualMinutes"
+                                       type="number" readonly class="form-control"
+                                       :value="disorderForm.duration * disorderForm.perMonth * 8">
+                            </div>
+                            <div class="col-12 mt-2">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="mb-3"><u>Weekly Schedule</u></div>
+                                        <div class="row">
+                                            <div class="col-4">
+                                                <div class="form-check mb-2"
+                                                     v-for="(schedule, index) in disorderForm.schedule" :key="index">
+                                                    <input class="form-check-input" type="checkbox"
+                                                           v-model="schedule.checked">
+                                                    <label
+                                                        class="form-check-label">{{ schedule.day }}</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-8">
+                                                <div v-for="(schedule, index) in disorderForm.schedule"
+                                                     :key="index"
+                                                     v-if="schedule.checked">
+                                                    <div class="card mb-3 time-card">
+                                                        <div class="card-header">
+                                                            {{ schedule.day }}
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <div class="row">
+                                                                <div class="col-6">
+                                                                    <label class="sr-only"
+                                                                           for="startTime">Start
+                                                                        Time</label>
+                                                                    <input id="startTime"
+                                                                           type="time"
+                                                                           class="form-control"
+                                                                           v-model="schedule.time.startTime"
+                                                                           required
+                                                                           placeholder="Start Time">
+                                                                    <span
+                                                                        v-if="errors !== null && errors.start_time"
+                                                                        class="text-danger">{{
+                                                                            errors.start_time[0]
+                                                                        }}</span>
+                                                                </div>
+                                                                <div class="col-6">
+                                                                    <label class="sr-only"
+                                                                           for="endTime">End
+                                                                        Time</label>
+                                                                    <input id="endTime" type="time"
+                                                                           class="form-control"
+                                                                           v-model="schedule.time.endTime"
+                                                                           required
+                                                                           placeholder="End Time">
+                                                                    <span
+                                                                        v-if="errors !== null && errors.end_time"
+                                                                        class="text-danger">{{
+                                                                            errors.end_time[0]
+                                                                        }}</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card mt-2">
+                                    <div class="card-body">
+                                        <div class="mb-3"><u>Objectives</u></div>
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <div class="mb-4"
+                                                     v-for="(objective, idx) in disorderForm.objectives">
+                                                    <div>
+                                                                    <textarea v-model="objective.name"
+                                                                              class="form-control"></textarea>
+                                                    </div>
+                                                    <div class="mt-2">
+                                                        <small>
+                                                            <a @click="removeObjective(idx, index)">
+                                                                <u><i class="bi bi-trash"></i> Remove</u>
+                                                            </a>
+                                                        </small>
+                                                    </div>
+
+                                                </div>
+                                                <small>
+                                                    <a @click="addObjective">
+                                                        <u><i class="bi bi-plus-circle"></i> Add
+                                                            Objective</u>
+                                                    </a>
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 mt-3">
+                                <main-button type="submit" class="app-btn-primary">Add</main-button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </form>
+        </portal-modal>
     </div>
 
 </template>
@@ -169,8 +320,6 @@ export default {
         }
     },
     setup() {
-        // Data
-        // const context = useContext();
         const store = useStore();
         let schools = ref([]);
         const schoolId = ref();
@@ -178,6 +327,7 @@ export default {
         const schoolYearId = ref();
         const disorders = ref([]);
         const disorderId = ref(0);
+        const unusedDisorders = ref([]);
         let students = ref([]);
         const grades = ['1st', '2nd', '3rd', '4th', '5th', '6th', '7th'];
         let form = reactive({
@@ -186,6 +336,56 @@ export default {
             last_name: null,
             grade: null
         });
+        let disorderForm = reactive({
+            id: null,
+            student_id: null,
+            school_year_id: schoolYearId,
+            duration: null,
+            perMonth: null,
+            schedule: [
+                {
+                    day: 'Monday',
+                    checked: false,
+                    time: {
+                        startTime: null,
+                        endTime: null
+                    }
+                },
+                {
+                    day: 'Tuesday',
+                    checked: false,
+                    time: {
+                        startTime: null,
+                        endTime: null
+                    }
+                },
+                {
+                    day: 'Wednesday',
+                    checked: false,
+                    time: {
+                        startTime: null,
+                        endTime: null
+                    }
+                },
+                {
+                    day: 'Thursday',
+                    checked: false,
+                    time: {
+                        startTime: null,
+                        endTime: null
+                    }
+                },
+                {
+                    day: 'Friday',
+                    checked: false,
+                    time: {
+                        startTime: null,
+                        endTime: null
+                    }
+                },
+            ],
+            objectives: []
+        })
         let errors = ref([]);
 
 
@@ -207,7 +407,6 @@ export default {
         }
 
         const getStudents = async () => {
-            console.log(schoolYearId.value);
             await store.dispatch('students/getStudents', {
                 schoolYearId: schoolYearId.value,
                 disorderId: disorderId.value
@@ -222,6 +421,14 @@ export default {
             form.grade = student.grade;
         }
 
+        const getUnusedDisorders = async (studentId) => {
+            if (studentId !== 0 && studentId !== null) {
+                await store.dispatch('disorders/getUnusedDisorders', studentId)
+                unusedDisorders.value = store.state.disorders.unusedDisorders;
+                disorderForm.student_id = studentId;
+            }
+        }
+
         const updateStudentInfo = async () => {
             if (form.id !== 0) {
                 const student = store.dispatch("students/updateStudent", form);
@@ -232,6 +439,20 @@ export default {
                         errors.value = error.response.data.errors
                     }
                 })
+            }
+        }
+
+        const addObjective = async () => {
+            disorderForm.objectives.push({name: ''})
+        }
+
+        const removeObjective = async (idx) => {
+            disorderForm.objectives.splice(idx, 1);
+        }
+
+        const addDisorder = async () => {
+            if (disorderForm.id !== 0 && disorderForm.id !== null) {
+                await store.dispatch('students/addStudentDisorder', disorderForm)
             }
         }
 
@@ -255,13 +476,19 @@ export default {
             disorderId,
             students,
             form,
+            disorderForm,
+            unusedDisorders,
             errors,
             grades,
             getSchoolYears,
             getDisorders,
             getStudents,
             setStudentInfo,
-            updateStudentInfo
+            updateStudentInfo,
+            addDisorder,
+            getUnusedDisorders,
+            addObjective,
+            removeObjective
 
         }
     }

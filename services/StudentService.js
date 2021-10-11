@@ -9,9 +9,9 @@ const students = $axios => ({
     },
     updateStudent: async formData => {
         return await $axios.patch("/api/students/" + formData.id, formData);
+    },
+    addStudentDisorder: async formData => {
+        return await $axios.post("/api/student/disorder", formData);
     }
-    // deleteSchool: async id => {
-    //     return await $axios.delete("/api/schools/" + id);
-    // }
 });
 export default students;

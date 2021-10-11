@@ -1,10 +1,14 @@
 export const state = () => ({
-    disorders: []
+    disorders: [],
+    unusedDisorders: []
 });
 
 export const mutations = {
     GET_DISORDERS(state, data) {
         state.disorders = data;
+    },
+    GET_UNUSED_DISORDERS(state, data) {
+        state.unusedDisorders = data;
     },
     ADD_DISORDER(state, data) {
         state.disorders.push(data);
@@ -27,6 +31,10 @@ export const actions = {
     async getDisorders({ commit }) {
         const response = await $nuxt.$getDisorders();
         commit("GET_DISORDERS", response.data);
+    },
+    async getUnusedDisorders({ commit }, studentId) {
+        const response = await $nuxt.$getUnusedDisorders(studentId);
+        commit("GET_UNUSED_DISORDERS", response.data);
     },
     async addDisorder({ commit }, formData) {
         const response = await $nuxt.$addDisorder(formData);
