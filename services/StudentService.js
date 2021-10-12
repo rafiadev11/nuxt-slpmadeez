@@ -12,6 +12,12 @@ const students = $axios => ({
     },
     addStudentDisorder: async formData => {
         return await $axios.post("/api/student/disorder", formData);
+    },
+    getSchedule: async goalId => {
+        return await $axios.get("/api/student/schedule/" + goalId);
+    },
+    updateSchedule: async formData => {
+        return await $axios.post("/api/student/update-schedule", formData);
     }
 });
 export default students;

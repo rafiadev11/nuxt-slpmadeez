@@ -89,13 +89,18 @@
                                                 {{ goal.disorder.name }}
                                                 <a href="#"
                                                    @click="getUnusedDisorders(goal.student_id)"
+                                                   title="Add Disorder"
                                                    data-bs-toggle="modal"
                                                    data-bs-target="#addDisorder">
                                                     <i class="bi bi-plus-circle"></i>
                                                 </a>
                                             </td>
                                             <td>
-                                                <a href="#" title="Update Schedule"><i class="bi bi-clock"></i></a>
+                                                <a href="#"
+                                                   @click="getSchedule(goal.id)"
+                                                   data-bs-toggle="modal"
+                                                   data-bs-target="#updateSchedule"
+                                                   title="Update Schedule"><i class="bi bi-clock"></i></a>
                                                 /
                                                 <a href="#" title="Update Objectives"><i
                                                     class="bi bi-list-check"></i></a>
@@ -294,6 +299,69 @@
                 </div>
             </form>
         </portal-modal>
+
+        <portal-modal modal-title="Update Schedule" modal-id="updateSchedule">
+            <form @submit.prevent="updateSchedule">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="mb-3"><u>Weekly Schedule</u></div>
+                                <div class="row">
+                                    <div class="col-4">
+                                        <div class="form-check mb-2"
+                                             v-for="(item, index) in scheduleForm.schedule" :key="index">
+                                            <input class="form-check-input" type="checkbox"
+                                                   v-model="item.checked" :value="item.day">
+                                            <label class="form-check-label">{{ item.day }}</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-8">
+                                        <div v-for="(schedule, index) in scheduleForm.schedule"
+                                             :key="index"
+                                             v-if="schedule.checked">
+                                            <div class="card mb-3 time-card">
+                                                <div class="card-header">
+                                                    {{ schedule.day }}
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="row">
+                                                        <div class="col-6">
+                                                            <label class="sr-only"
+                                                                   for="startTime">Start
+                                                                Time</label>
+                                                            <input
+                                                                type="time"
+                                                                class="form-control"
+                                                                v-model="schedule.time.startTime"
+                                                                required
+                                                                placeholder="Start Time">
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <label class="sr-only"
+                                                                   for="endTime">End
+                                                                Time</label>
+                                                            <input type="time"
+                                                                   class="form-control"
+                                                                   v-model="schedule.time.endTime"
+                                                                   required
+                                                                   placeholder="End Time">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 mt-3">
+                        <main-button type="submit" class="app-btn-primary">Update</main-button>
+                    </div>
+                </div>
+            </form>
+        </portal-modal>
     </div>
 
 </template>
@@ -385,7 +453,57 @@ export default {
                 },
             ],
             objectives: []
-        })
+        });
+        const scheduleForm = ref({
+            goal_id: null,
+            schedule: [
+                {
+                    id: null,
+                    day: 'Monday',
+                    checked: false,
+                    time: {
+                        startTime: null,
+                        endTime: null
+                    }
+                },
+                {
+                    id: null,
+                    day: 'Tuesday',
+                    checked: false,
+                    time: {
+                        startTime: null,
+                        endTime: null
+                    }
+                },
+                {
+                    id: null,
+                    day: 'Wednesday',
+                    checked: false,
+                    time: {
+                        startTime: null,
+                        endTime: null
+                    }
+                },
+                {
+                    id: null,
+                    day: 'Thursday',
+                    checked: false,
+                    time: {
+                        startTime: null,
+                        endTime: null
+                    }
+                },
+                {
+                    id: null,
+                    day: 'Friday',
+                    checked: false,
+                    time: {
+                        startTime: null,
+                        endTime: null
+                    }
+                },
+            ]
+        });
         let errors = ref([]);
 
 
@@ -456,6 +574,68 @@ export default {
             }
         }
 
+        const getSchedule = async (goalId) => {
+            scheduleForm.value.goal_id = goalId;
+            scheduleForm.value.schedule = [
+                {
+                    day: 'Monday',
+                    checked: false,
+                    time: {
+                        startTime: null,
+                        endTime: null
+                    }
+                },
+                {
+                    day: 'Tuesday',
+                    checked: false,
+                    time: {
+                        startTime: null,
+                        endTime: null
+                    }
+                },
+                {
+                    day: 'Wednesday',
+                    checked: false,
+                    time: {
+                        startTime: null,
+                        endTime: null
+                    }
+                },
+                {
+                    day: 'Thursday',
+                    checked: false,
+                    time: {
+                        startTime: null,
+                        endTime: null
+                    }
+                },
+                {
+                    day: 'Friday',
+                    checked: false,
+                    time: {
+                        startTime: null,
+                        endTime: null
+                    }
+                },
+            ];
+            await store.dispatch('students/getSchedule', goalId);
+            for(let item of store.state.students.schedule){
+                scheduleForm.value.schedule.find(val => {
+                    if(val.day === item.day){
+                        val.id = item.id;
+                        val.checked = true;
+                        val.time.startTime = item.start_time;
+                        val.time.endTime = item.end_time;
+                    }
+                })
+            }
+
+        }
+
+        const updateSchedule = async () => {
+            await store.dispatch('students/updateSchedule', scheduleForm.value);
+        }
+
 
         // LifeCycle Hooks
         onMounted(async () => {
@@ -480,6 +660,7 @@ export default {
             unusedDisorders,
             errors,
             grades,
+            scheduleForm,
             getSchoolYears,
             getDisorders,
             getStudents,
@@ -488,7 +669,9 @@ export default {
             addDisorder,
             getUnusedDisorders,
             addObjective,
-            removeObjective
+            removeObjective,
+            updateSchedule,
+            getSchedule
 
         }
     }

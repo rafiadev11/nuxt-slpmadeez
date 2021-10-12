@@ -1,5 +1,6 @@
 export const state = () => ({
-    students: []
+    students: [],
+    schedule: []
 });
 
 export const mutations = {
@@ -40,6 +41,9 @@ export const mutations = {
                 name: data.disorder.name
             }
         });
+    },
+    GET_SCHEDULE(state, data) {
+        state.schedule = data;
     }
 };
 
@@ -63,5 +67,13 @@ export const actions = {
         const response = await $nuxt.$addStudentDisorder(formData);
         commit("ADD_STUDENT_DISORDER", response.data);
         return response;
+    },
+    async getSchedule({ commit }, goalId) {
+        const response = await $nuxt.$getSchedule(goalId);
+        commit("GET_SCHEDULE", response.data);
+        return response;
+    },
+    async updateSchedule({ commit }, formData) {
+        await $nuxt.$updateSchedule(formData);
     }
 };
