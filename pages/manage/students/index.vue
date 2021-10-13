@@ -102,10 +102,16 @@
                                                    data-bs-target="#updateSchedule"
                                                    title="Update Schedule"><i class="bi bi-clock"></i></a>
                                                 /
-                                                <a href="#" title="Update Objectives"><i
+                                                <a href="#"
+                                                   @click="getObjectives(goal.id)"
+                                                   data-bs-toggle="modal"
+                                                   data-bs-target="#updateObjectives"
+                                                   title="Update Objectives"><i
                                                     class="bi bi-list-check"></i></a>
                                                 /
-                                                <a href="#" title="Deactivate Student"><i
+                                                <a href="#"
+                                                   @click="deactivate(goal.id, index, goal.student.first_name)"
+                                                   title="Deactivate Student"><i
                                                     class="bi bi-person-x-fill"></i></a>
                                             </td>
                                             <td class="text-center">
@@ -362,12 +368,55 @@
                 </div>
             </form>
         </portal-modal>
+
+        <portal-modal modal-title="Update Objectives" modal-id="updateObjectives">
+            <form @submit.prevent="updateObjectives">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="mb-3"><u>Objectives</u></div>
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="mb-4"
+                                             v-for="(objective, idx) in objectivesForm.objectives">
+                                            <div>
+                                                                    <textarea v-model="objective.name"
+                                                                              class="form-control"></textarea>
+                                            </div>
+                                            <div class="mt-2">
+                                                <small>
+                                                    <a @click="removeObj(idx)">
+                                                        <u><i class="bi bi-trash"></i> Remove</u>
+                                                    </a>
+                                                </small>
+                                            </div>
+
+                                        </div>
+                                        <small>
+                                            <a @click="addObj">
+                                                <u><i class="bi bi-plus-circle"></i> Add
+                                                    Objective</u>
+                                            </a>
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 mt-3">
+                        <main-button type="submit" class="app-btn-primary">Update</main-button>
+                    </div>
+                </div>
+            </form>
+        </portal-modal>
     </div>
 
 </template>
 
 <script>
 import {onMounted, reactive, ref, useStore} from "@nuxtjs/composition-api";
+import swal from "@/utils/swal";
 
 export default {
     layout: 'portal',
@@ -504,6 +553,10 @@ export default {
                 },
             ]
         });
+        const objectivesForm = reactive({
+            goal_id: null,
+            objectives: []
+        })
         let errors = ref([]);
 
 
@@ -619,9 +672,9 @@ export default {
                 },
             ];
             await store.dispatch('students/getSchedule', goalId);
-            for(let item of store.state.students.schedule){
+            for (let item of store.state.students.schedule) {
                 scheduleForm.value.schedule.find(val => {
-                    if(val.day === item.day){
+                    if (val.day === item.day) {
                         val.id = item.id;
                         val.checked = true;
                         val.time.startTime = item.start_time;
@@ -629,11 +682,41 @@ export default {
                     }
                 })
             }
-
         }
 
         const updateSchedule = async () => {
             await store.dispatch('students/updateSchedule', scheduleForm.value);
+        }
+
+        const getObjectives = async (goalId) => {
+            objectivesForm.goal_id = goalId;
+            objectivesForm.objectives = [];
+            await store.dispatch('students/getObjectives', goalId);
+            for (let item of store.state.students.objectives) {
+                objectivesForm.objectives.push(
+                    {name: item.goal, id: item.id}
+                );
+            }
+        }
+
+        const addObj = async () => {
+            objectivesForm.objectives.push({name: ''})
+        }
+
+        const removeObj = async (idx) => {
+            objectivesForm.objectives.splice(idx, 1);
+        }
+
+        const updateObjectives = async () => {
+            await store.dispatch('students/updateObjectives', objectivesForm);
+        }
+
+        const deactivate = async (goalId, index, label) => {
+            const data = await swal.remove(label);
+            if (data.isConfirmed) {
+                await store.dispatch('students/deactivate', {id: goalId});
+                store.commit('students/REMOVE_DEACTIVATED_STUDENTS', index);
+            }
         }
 
 
@@ -661,6 +744,7 @@ export default {
             errors,
             grades,
             scheduleForm,
+            objectivesForm,
             getSchoolYears,
             getDisorders,
             getStudents,
@@ -671,7 +755,12 @@ export default {
             addObjective,
             removeObjective,
             updateSchedule,
-            getSchedule
+            getSchedule,
+            getObjectives,
+            addObj,
+            removeObj,
+            updateObjectives,
+            deactivate
 
         }
     }

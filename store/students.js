@@ -1,6 +1,7 @@
 export const state = () => ({
     students: [],
-    schedule: []
+    schedule: [],
+    objectives: []
 });
 
 export const mutations = {
@@ -44,6 +45,12 @@ export const mutations = {
     },
     GET_SCHEDULE(state, data) {
         state.schedule = data;
+    },
+    GET_OBJECTIVES(state, data) {
+        state.objectives = data;
+    },
+    REMOVE_DEACTIVATED_STUDENTS(state, index) {
+        state.students.splice(index, 1);
     }
 };
 
@@ -75,5 +82,16 @@ export const actions = {
     },
     async updateSchedule({ commit }, formData) {
         await $nuxt.$updateSchedule(formData);
+    },
+    async getObjectives({ commit }, goalId) {
+        const response = await $nuxt.$getObjectives(goalId);
+        commit("GET_OBJECTIVES", response.data);
+        return response;
+    },
+    async updateObjectives({ commit }, formData) {
+        await $nuxt.$updateObjectives(formData);
+    },
+    async deactivate({ commit }, goalId) {
+        await $nuxt.$studentDeactivate(goalId);
     }
 };
