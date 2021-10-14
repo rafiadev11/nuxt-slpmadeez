@@ -4,7 +4,6 @@
             <div class="col-auto">
                 <portal-page-title>My Students</portal-page-title>
             </div>
-
         </div>
         <div class="row">
             <div class="col-lg-8">
@@ -115,7 +114,16 @@
                                                     class="bi bi-person-x-fill"></i></a>
                                             </td>
                                             <td class="text-center">
-                                                <a href="#">Transfer</a>
+                                                <a href="#"
+                                                   @click="showStudentTransfer(
+                                                       goal.id,
+                                                       goal.student.first_name + ' '+goal.student.last_name,
+                                                       goal.disorder.name,
+                                                       goal.school_year.school.name,
+                                                       goal.school_year.start+' - '+goal.school_year.end
+                                                       )"
+                                                   data-bs-toggle="modal"
+                                                   data-bs-target="#transferStudent">Transfer</a>
                                             </td>
                                         </tr>
                                         </tbody>
@@ -164,7 +172,6 @@
                 </div>
             </form>
         </portal-modal>
-
         <portal-modal modal-title="Add Disorder" modal-id="addDisorder">
             <form @submit.prevent="addDisorder">
                 <div class="row">
@@ -305,7 +312,6 @@
                 </div>
             </form>
         </portal-modal>
-
         <portal-modal modal-title="Update Schedule" modal-id="updateSchedule">
             <form @submit.prevent="updateSchedule">
                 <div class="row">
@@ -368,7 +374,6 @@
                 </div>
             </form>
         </portal-modal>
-
         <portal-modal modal-title="Update Objectives" modal-id="updateObjectives">
             <form @submit.prevent="updateObjectives">
                 <div class="row">
@@ -410,8 +415,64 @@
                 </div>
             </form>
         </portal-modal>
+        <portal-modal modal-title="Transfer Student" modal-id="transferStudent">
+            <form @submit.prevent="transferStudent">
+                <div class="row">
+                    <div class="col-12">
+                        <strong>Student:</strong> {{transferForm.studentName}}
+                    </div>
+                    <div class="col-12 mt-2">
+                        <strong>Disorder:</strong> {{transferForm.disorder}}
+                    </div>
+                    <div class="col-12 mt-2">
+                        <strong>Current School/Year</strong> <br>
+                        {{transferForm.school}} / {{transferForm.schoolYear}}
+                    </div>
+                    <div class="col-12 mt-2">
+                        <label>Transfer To</label>
+                    </div>
+                    <div class="col-6">
+                        <select class="form-select form-select-sm" @change="getSchoolYears"
+                                v-model="schoolId">
+                            <option v-for="(school, index) in schools"
+                                    :key="index"
+                                    :value="school.id">
+                                {{ school.name }}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-6">
+                        <select class="form-select form-select-sm" v-model="schoolYearId">
+                            <option v-for="(schoolYear, index) in schoolYears"
+                                    :key="index"
+                                    :value="schoolYear.id">
+                                {{ schoolYear.start | formatDate }} - {{ schoolYear.end | formatDate }}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-12 mt-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="objectives" id="flexRadioDefault1" checked>
+                            <label class="form-check-label" for="flexRadioDefault1">
+                                With Objectives
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="objectives" id="flexRadioDefault2">
+                            <label class="form-check-label" for="flexRadioDefault2">
+                                Without Objectives
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-6">
+                        <main-button type="submit" class="app-btn-primary">Transfer</main-button>
+                    </div>
+                </div>
+            </form>
+        </portal-modal>
     </div>
-
 </template>
 
 <script>
@@ -557,41 +618,44 @@ export default {
             goal_id: null,
             objectives: []
         })
+        const transferForm = reactive({
+            goalId: null,
+            studentName: null,
+            disorder: null,
+            withObjectives: true,
+            school: null,
+            schoolYear: null
+        });
         let errors = ref([]);
-
 
         const getSchools = async () => {
             await store.dispatch('schools/getMySchools');
             schools.value = store.state.schools.mySchools;
             schoolId.value = schools.value[0].id;
         }
-
         const getSchoolYears = async () => {
             await store.dispatch('schoolYears/getSchoolYears', schoolId.value);
             schoolYears.value = store.state.schoolYears.schoolYears;
             schoolYearId.value = schoolYears.value[0].id;
         }
-
         const getDisorders = async () => {
             await store.dispatch('disorders/getDisorders');
             disorders.value = store.state.disorders.disorders;
         }
-
         const getStudents = async () => {
             await store.dispatch('students/getStudents', {
                 schoolYearId: schoolYearId.value,
                 disorderId: disorderId.value
             });
             students.value = store.state.students.students;
+            console.log(students.value);
         }
-
         const setStudentInfo = async (student) => {
             form.id = student.id;
             form.first_name = student.first_name;
             form.last_name = student.last_name;
             form.grade = student.grade;
         }
-
         const getUnusedDisorders = async (studentId) => {
             if (studentId !== 0 && studentId !== null) {
                 await store.dispatch('disorders/getUnusedDisorders', studentId)
@@ -599,7 +663,6 @@ export default {
                 disorderForm.student_id = studentId;
             }
         }
-
         const updateStudentInfo = async () => {
             if (form.id !== 0) {
                 const student = store.dispatch("students/updateStudent", form);
@@ -612,21 +675,17 @@ export default {
                 })
             }
         }
-
         const addObjective = async () => {
             disorderForm.objectives.push({name: ''})
         }
-
         const removeObjective = async (idx) => {
             disorderForm.objectives.splice(idx, 1);
         }
-
         const addDisorder = async () => {
             if (disorderForm.id !== 0 && disorderForm.id !== null) {
                 await store.dispatch('students/addStudentDisorder', disorderForm)
             }
         }
-
         const getSchedule = async (goalId) => {
             scheduleForm.value.goal_id = goalId;
             scheduleForm.value.schedule = [
@@ -683,11 +742,9 @@ export default {
                 })
             }
         }
-
         const updateSchedule = async () => {
             await store.dispatch('students/updateSchedule', scheduleForm.value);
         }
-
         const getObjectives = async (goalId) => {
             objectivesForm.goal_id = goalId;
             objectivesForm.objectives = [];
@@ -698,19 +755,15 @@ export default {
                 );
             }
         }
-
         const addObj = async () => {
             objectivesForm.objectives.push({name: ''})
         }
-
         const removeObj = async (idx) => {
             objectivesForm.objectives.splice(idx, 1);
         }
-
         const updateObjectives = async () => {
             await store.dispatch('students/updateObjectives', objectivesForm);
         }
-
         const deactivate = async (goalId, index, label) => {
             const data = await swal.remove(label);
             if (data.isConfirmed) {
@@ -718,7 +771,16 @@ export default {
                 store.commit('students/REMOVE_DEACTIVATED_STUDENTS', index);
             }
         }
+        const showStudentTransfer = async (goalId, studentName, disorder, school, schoolYear) => {
+            transferForm.goalId = goalId;
+            transferForm.studentName = studentName;
+            transferForm.disorder = disorder;
+            transferForm.school = school;
+            transferForm.schoolYear = schoolYear;
+        }
+        const transferStudent = async () => {
 
+        }
 
         // LifeCycle Hooks
         onMounted(async () => {
@@ -727,7 +789,6 @@ export default {
             await getDisorders();
             await getStudents();
         });
-
 
         // Available Data
         return {
@@ -745,6 +806,7 @@ export default {
             grades,
             scheduleForm,
             objectivesForm,
+            transferForm,
             getSchoolYears,
             getDisorders,
             getStudents,
@@ -760,7 +822,9 @@ export default {
             addObj,
             removeObj,
             updateObjectives,
-            deactivate
+            deactivate,
+            transferStudent,
+            showStudentTransfer
 
         }
     }
