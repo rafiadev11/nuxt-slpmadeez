@@ -452,22 +452,24 @@
                     </div>
                     <div class="col-12 mt-3">
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="objectives" id="flexRadioDefault1" checked>
+                            <input class="form-check-input" v-model="transferForm.withObjectives" :value="true" type="radio" name="objectives" id="flexRadioDefault1">
                             <label class="form-check-label" for="flexRadioDefault1">
                                 With Objectives
                             </label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="objectives" id="flexRadioDefault2">
+                            <input class="form-check-input" v-model="transferForm.withObjectives" :value="false" type="radio" name="objectives" id="flexRadioDefault2">
                             <label class="form-check-label" for="flexRadioDefault2">
                                 Without Objectives
                             </label>
                         </div>
+                        <span v-if="errors !== null && errors.withObjectives" class="text-danger">{{ errors.withObjectives[0] }}</span>
                     </div>
                 </div>
+                <span v-if="errors !== null && errors.duplicate" class="text-danger">{{ errors.duplicate[0] }}</span>
                 <div class="row mt-3">
                     <div class="col-6">
-                        <main-button type="submit" class="app-btn-primary">Transfer</main-button>
+                        <main-button type="submit" class="app-btn-primary" @click="transferStudent">Transfer</main-button>
                     </div>
                 </div>
             </form>
@@ -622,9 +624,10 @@ export default {
             goalId: null,
             studentName: null,
             disorder: null,
-            withObjectives: true,
+            withObjectives: null,
             school: null,
-            schoolYear: null
+            schoolYear: null,
+            newSchoolYearId: null
         });
         let errors = ref([]);
 
@@ -648,7 +651,7 @@ export default {
                 disorderId: disorderId.value
             });
             students.value = store.state.students.students;
-            console.log(students.value);
+
         }
         const setStudentInfo = async (student) => {
             form.id = student.id;
@@ -777,9 +780,19 @@ export default {
             transferForm.disorder = disorder;
             transferForm.school = school;
             transferForm.schoolYear = schoolYear;
+            transferForm.newSchoolYearId = schoolYearId;
+            transferForm.withObjectives = null;
+
         }
         const transferStudent = async () => {
-
+            try{
+                await store.dispatch('students/transfer', transferForm);
+                await getStudents();
+            }catch (error){
+                if (error.response.status === 422) {
+                        errors.value = error.response.data.errors
+                    }
+            }
         }
 
         // LifeCycle Hooks

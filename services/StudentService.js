@@ -27,6 +27,9 @@ const students = $axios => ({
     },
     studentDeactivate: async goalId => {
         return await $axios.post("/api/student/deactivate", goalId);
+    },
+    studentTransfer: async formData => {
+        return await $axios.post("/api/student/transfer", formData);
     }
 });
 export default students;

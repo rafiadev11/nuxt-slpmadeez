@@ -7,7 +7,6 @@ export const state = () => ({
 export const mutations = {
     GET_STUDENTS(state, data) {
         state.students = data;
-        console.log(state.students);
     },
     ADD_STUDENT(state, data) {
         state.students.push(data);
@@ -51,6 +50,9 @@ export const mutations = {
     },
     REMOVE_DEACTIVATED_STUDENTS(state, index) {
         state.students.splice(index, 1);
+    },
+    ADD_TRANSFERRED_STUDENT(state, data) {
+        state.students.push(data);
     }
 };
 
@@ -93,5 +95,10 @@ export const actions = {
     },
     async deactivate({ commit }, goalId) {
         await $nuxt.$studentDeactivate(goalId);
+    },
+    async transfer({ commit }, formData) {
+        const response = await $nuxt.$studentTransfer(formData);
+        commit("ADD_TRANSFERRED_STUDENT", response.data);
+        return response;
     }
 };
