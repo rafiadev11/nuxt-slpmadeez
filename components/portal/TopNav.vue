@@ -58,7 +58,7 @@ export default {
             await this.$auth.logout();
         }
     },
-    created() {
+    mounted() {
         this.fullName = this.$auth.user.name;
     }
 }

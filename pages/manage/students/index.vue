@@ -16,35 +16,27 @@
                     </template>
                     <template v-slot:default>
                         <div class="row flex-row">
-                            <div class="col-auto flex-fill">
+                            <div class="col-4 flex-fill">
                                 <div class="page-utilities">
                                     <label>Schools</label>
-                                    <select class="form-select form-select-sm" @change="getSchoolYears"
-                                            v-model="schoolId">
-                                        <option v-for="(school, index) in schools"
-                                                :key="index"
-                                                :value="school.id">
-                                            {{ school.name }}
-                                        </option>
-                                    </select>
+                                    <portal-schools-dropdown
+                                        v-model="schoolId"
+                                        :schools="schools"
+                                        @change-school="getSchoolYears"/>
                                 </div>
                             </div>
-                            <div class="col-auto flex-fill">
+                            <div class="col-4 flex-fill">
                                 <div class="page-utilities">
                                     <label>School Years</label>
-                                    <select class="form-select form-select-sm" v-model="schoolYearId">
-                                        <option v-for="(schoolYear, index) in schoolYears"
-                                                :key="index"
-                                                :value="schoolYear.id">
-                                            {{ schoolYear.start | formatDate }} - {{ schoolYear.end | formatDate }}
-                                        </option>
-                                    </select>
+                                    <portal-school-years-dropdown
+                                        v-model="schoolYearId"
+                                        :school-years="schoolYears"/>
                                 </div>
                             </div>
-                            <div class="col-auto flex-fill">
+                            <div class="col-4 flex-fill">
                                 <div class="page-utilities">
                                     <label>Disorders</label>
-                                    <select class="form-select form-select-sm" v-model="disorderId">
+                                    <select class="form-select form-select" v-model="disorderId">
                                         <option v-for="(disorder, index) in disorders"
                                                 :key="index"
                                                 :value="disorder.id">
@@ -54,7 +46,7 @@
                                 </div>
                             </div>
                             <div class="col-auto flex-fill mt-4">
-                                <main-button type="button" @click.native="getStudents" class="app-btn-primary w-100">
+                                <main-button type="button" @click.native="getStudents" class="app-btn-primary">
                                     <i class="bi bi-filter-left"></i> Filter
                                 </main-button>
                             </div>
@@ -432,23 +424,15 @@
                         <label>Transfer To</label>
                     </div>
                     <div class="col-6">
-                        <select class="form-select form-select-sm" @change="getSchoolYears"
-                                v-model="schoolId">
-                            <option v-for="(school, index) in schools"
-                                    :key="index"
-                                    :value="school.id">
-                                {{ school.name }}
-                            </option>
-                        </select>
+                        <portal-schools-dropdown
+                            v-model="schoolId"
+                            :schools="schools"
+                            @change-school="getSchoolYears"/>
                     </div>
                     <div class="col-6">
-                        <select class="form-select form-select-sm" v-model="schoolYearId">
-                            <option v-for="(schoolYear, index) in schoolYears"
-                                    :key="index"
-                                    :value="schoolYear.id">
-                                {{ schoolYear.start | formatDate }} - {{ schoolYear.end | formatDate }}
-                            </option>
-                        </select>
+                        <portal-school-years-dropdown
+                            v-model="schoolYearId"
+                            :school-years="schoolYears"/>
                     </div>
                     <div class="col-12 mt-3">
                         <div class="form-check">
@@ -478,7 +462,7 @@
 </template>
 
 <script>
-import {onMounted, reactive, ref, useStore} from "@nuxtjs/composition-api";
+import {onMounted, reactive, ref, useContext, useStore} from "@nuxtjs/composition-api";
 import swal from "@/utils/swal";
 
 export default {
@@ -493,13 +477,8 @@ export default {
             }
         ]
     },
-    filters: {
-        formatDate: (date) => {
-            const options = {year: 'numeric', timeZone: 'UTC'};
-            return new Date(date).toLocaleDateString('en-US', options);
-        }
-    },
     setup() {
+        const context = useContext();
         const store = useStore();
         let schools = ref([]);
         const schoolId = ref();
@@ -671,6 +650,7 @@ export default {
                 const student = store.dispatch("students/updateStudent", form);
                 student.then((response) => {
                     store.commit('students/SET_STUDENT', response.data)
+                    closeModal();
                 }).catch(error => {
                     if (error.response.status === 422) {
                         errors.value = error.response.data.errors
@@ -686,7 +666,8 @@ export default {
         }
         const addDisorder = async () => {
             if (disorderForm.id !== 0 && disorderForm.id !== null) {
-                await store.dispatch('students/addStudentDisorder', disorderForm)
+                await store.dispatch('students/addStudentDisorder', disorderForm);
+                await closeModal();
             }
         }
         const getSchedule = async (goalId) => {
@@ -747,6 +728,7 @@ export default {
         }
         const updateSchedule = async () => {
             await store.dispatch('students/updateSchedule', scheduleForm.value);
+            await closeModal();
         }
         const getObjectives = async (goalId) => {
             objectivesForm.goal_id = goalId;
@@ -766,6 +748,7 @@ export default {
         }
         const updateObjectives = async () => {
             await store.dispatch('students/updateObjectives', objectivesForm);
+            await closeModal();
         }
         const deactivate = async (goalId, index, label) => {
             const data = await swal.remove(label);
@@ -782,17 +765,26 @@ export default {
             transferForm.schoolYear = schoolYear;
             transferForm.newSchoolYearId = schoolYearId;
             transferForm.withObjectives = null;
+            errors.value = null;
 
         }
         const transferStudent = async () => {
             try{
                 await store.dispatch('students/transfer', transferForm);
                 await getStudents();
+                await closeModal();
             }catch (error){
                 if (error.response.status === 422) {
                         errors.value = error.response.data.errors
                     }
             }
+        }
+        const closeModal = async () => {
+            errors.value = null;
+            $nuxt.$emit('closeModal');
+            context.$toast.success("Success", {
+                duration: 3000
+            })
         }
 
         // LifeCycle Hooks

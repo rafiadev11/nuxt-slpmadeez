@@ -36,7 +36,7 @@ export default {
             modal.click();
         }
     },
-    created() {
+    mounted() {
         this.$nuxt.$on('closeModal', this.closeForm);
     }
 }

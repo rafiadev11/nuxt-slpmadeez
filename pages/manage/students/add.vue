@@ -20,27 +20,18 @@
                             <div class="row mb-4">
                                 <div class="col-lg-6">
                                     <label class="sr-only">Select a School</label>
-                                    <select class="form-control form-select" v-model="form.school_id"
-                                            @change="getSchoolYears">
-                                        <option v-for="(school, index) in schools" :key="index" :value="school.id">
-                                            {{ school.name }}
-                                        </option>
-                                    </select>
+                                    <portal-schools-dropdown
+                                        v-model="form.school_id"
+                                        :schools="schools"
+                                        @change-school="getSchoolYears"/>
                                     <span v-if="errors !== null && errors.school_id"
                                           class="text-danger">{{ errors.school_id[0] }}</span>
                                 </div>
                                 <div class="col-lg-6">
                                     <label class="sr-only">Select School Year</label>
-                                    <select class="form-control form-select"
-                                            v-model="form.school_year_id">
-                                        <option value="" v-if="schoolYears.length < 1" disabled>Select a School to View
-                                            School Years
-                                        </option>
-                                        <option v-for="(schoolYear, index) in schoolYears" :key="index"
-                                                :value="schoolYear.id">
-                                            {{ schoolYear.start | formatDate }} - {{ schoolYear.end | formatDate }}
-                                        </option>
-                                    </select>
+                                    <portal-school-years-dropdown
+                                        v-model="form.school_year_id"
+                                        :school-years="schoolYears"/>
                                 </div>
                             </div>
                             <div class="row mb-4">
@@ -232,7 +223,7 @@
 
 <script>
 import vSelect from "vue-select";
-import {onMounted, reactive, ref, useStore, watchEffect} from "@nuxtjs/composition-api";
+import {onMounted, reactive, ref, useContext, useStore, watchEffect} from "@nuxtjs/composition-api";
 
 export default {
     layout: 'portal',
@@ -256,16 +247,17 @@ export default {
         vSelect
     },
     setup() {
+        const context = useContext();
         const store = useStore();
         const schools = ref([]);
         const schoolYears = ref([]);
         const disorders = ref();
-        const form = reactive({
+        let form = reactive({
             first_name: '',
             last_name: '',
             grade: '',
-            school_id: '',
-            school_year_id: '',
+            school_id: null,
+            school_year_id: null,
             disorders: [],
             sessions: [],
             objectives: []
@@ -278,11 +270,17 @@ export default {
         const getSchools = async () => {
             await store.dispatch('schools/getMySchools');
             schools.value = store.state.schools.mySchools;
+            form.school_id = schools.value[0].id;
+            form.school_year_id = schools.value[0].school_years[0].id;
+            if(schoolYears.value.length < 1){
+                await getSchoolYears();
+            }
         }
 
         const getSchoolYears = async () => {
             await store.dispatch('schoolYears/getSchoolYears', form.school_id);
             schoolYears.value = store.state.schoolYears.schoolYears;
+            form.school_year_id = schoolYears.value[0].id;
         }
 
         const getDisorders = async () => {
@@ -375,14 +373,21 @@ export default {
             // Submit data via API
             const student = store.dispatch("students/addStudent", form);
             student.then((response) => {
-                console.log(response);
+                errors.value = null;
+                form.first_name = '';
+                form.last_name = '';
+                form.grade = '';
+                form.disorders = [];
+                form.sessions = [];
+                form.objectives = [];
+                context.$toast.success("Success", {
+                    duration: 3000
+                });
             }).catch(error => {
                 if (error.response.status === 422) {
                     errors.value = error.response.data.errors
                 }
-            })
-            // Redirect to students if user selects save
-            // Redirect back if user selects save and add another student
+            });
         }
 
         // LifeCycle Hooks

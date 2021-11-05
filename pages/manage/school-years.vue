@@ -11,14 +11,10 @@
                 <portal-card>
                     <template v-slot:header-title>
                         <div class="page-utilities">
-                            <select class="form-select form-select-sm w-auto" v-model="schoolId"
-                                    @change="getSchoolYears">
-                                <option v-for="(school, index) in schools"
-                                        :key="index"
-                                        :value="school.id">
-                                    {{ school.name }}
-                                </option>
-                            </select>
+                            <portal-schools-dropdown
+                                v-model="schoolId"
+                                :schools="schools"
+                                @change-school="getSchoolYears"/>
                         </div>
                     </template>
                     <template v-slot:header-button>
@@ -57,13 +53,7 @@
                 <div class="row">
                     <div class="col-lg-12">
                         <label class="sr-only">Select a School</label>
-                        <select class="form-select form-select-sm w-auto" v-model="form.school_id">
-                            <option v-for="(school, index) in schools"
-                                    :key="index"
-                                    :value="school.id">
-                                {{ school.name }}
-                            </option>
-                        </select>
+                        <portal-schools-dropdown v-model="form.school_id" :schools="schools"/>
                         <br>
                         <span v-if="errors !== null && errors.school_id">{{ errors.school_id[0] }}</span>
                         <input type="hidden" v-model="form.id">
@@ -123,7 +113,7 @@ export default defineComponent({
         const buttonText = ref('Add');
         const form = reactive({
             id: null,
-            school_id: '',
+            school_id: null,
             start: '',
             end: ''
         });

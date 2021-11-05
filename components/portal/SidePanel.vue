@@ -24,14 +24,6 @@
                     <li class="nav-item">
                         <NuxtLink class="nav-link" to="#">
 						        <span class="nav-icon">
-                                    <i class="bi bi-calendar"></i>
-						         </span>
-                            <span class="nav-link-text">Calendar</span>
-                        </NuxtLink>
-                    </li>
-                    <li class="nav-item">
-                        <NuxtLink class="nav-link" to="#">
-						        <span class="nav-icon">
 						            <i class="bi bi-bar-chart"></i>
 						         </span>
                             <span class="nav-link-text">Reports</span>
